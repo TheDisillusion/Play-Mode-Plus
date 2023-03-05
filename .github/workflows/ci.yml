@@ -1,0 +1,13 @@
+name: UPM Release
+on:
+  push:
+    branches: [ release ]
+
+jobs:
+  update_upm_branch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ErnSur/UPM-Release@develop
+        with:
+          package_directory: 'Packages/com.disillusion.play-mode-plus'
