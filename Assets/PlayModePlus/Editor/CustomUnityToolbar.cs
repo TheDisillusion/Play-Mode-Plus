@@ -4,7 +4,6 @@ using UnityEditor;
 
 namespace PlayModePlus.Editor
 {
-    // Modified version of https://github.com/marijnz/unity-toolbar-extender/
     [InitializeOnLoad]
     public static class CustomUnityToolbar
     {

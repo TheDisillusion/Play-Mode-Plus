@@ -6,7 +6,6 @@ using UnityEngine.UIElements;
 
 namespace PlayModePlus.Editor
 {
-    // Modified version of https://github.com/marijnz/unity-toolbar-extender/
     public static class CustomUnityToolbarCallback
     {
         private static readonly Type MToolbarType = typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.Toolbar");
