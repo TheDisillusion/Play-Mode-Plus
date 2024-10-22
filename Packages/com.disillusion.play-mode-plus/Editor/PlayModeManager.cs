@@ -54,7 +54,6 @@ namespace PlayModePlus.Editor
         {
             ScenesInProject = AssetDatabase.FindAssets("t:SceneAsset")
                 .Select(AssetDatabase.GUIDToAssetPath)
-                .Where(path => path.Contains("S_"))
                 .Select(AssetDatabase.LoadAssetAtPath<SceneAsset>)
                 .ToArray();
 

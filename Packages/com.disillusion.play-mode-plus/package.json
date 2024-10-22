@@ -1,10 +1,10 @@
 {
   "name": "com.disillusion.play-mode-plus",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "displayName": "Play Mode Plus",
   "description": "Adds additional buttons and dropdowns to Unity toolbar for play mode and build settings",
-  "unity": "2021.3",
-  "unityRelease": "1f1",
+  "unity": "6000.0",
+  "unityRelease": "23f1",
   "keywords": [
     "toolbar",
     "play mode",
