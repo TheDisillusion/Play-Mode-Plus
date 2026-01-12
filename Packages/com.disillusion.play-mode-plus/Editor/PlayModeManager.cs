@@ -65,7 +65,7 @@ namespace PlayModePlus.Editor
 
         public void AddScene()
         {
-            const string baseName = "S_NewScene";
+            const string baseName = "NewScene";
             var sceneNumber = 1;
             var newSceneName = baseName;
 
