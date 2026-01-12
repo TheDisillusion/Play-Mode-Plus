@@ -54,7 +54,7 @@ namespace PlayModePlus.Editor
             }
         }
 
-        [MainToolbarElement(PlayButtonPath, defaultDockPosition = MainToolbarDockPosition.Right, defaultDockIndex = 0)]
+        [MainToolbarElement(PlayButtonPath, defaultDockPosition = MainToolbarDockPosition.Middle, defaultDockIndex = 0)]
         public static MainToolbarElement CreatePlayButton()
         {
             var texture = EditorApplication.isPlaying ? _playStopButtonTexture : _playButtonTexture;
@@ -64,7 +64,7 @@ namespace PlayModePlus.Editor
             return button;
         }
 
-        [MainToolbarElement(SceneDropdownPath, defaultDockPosition = MainToolbarDockPosition.Right, defaultDockIndex = 1)]
+        [MainToolbarElement(SceneDropdownPath, defaultDockPosition = MainToolbarDockPosition.Middle, defaultDockIndex = 1)]
         public static MainToolbarElement CreateSceneDropdown()
         {
             var displayText = string.IsNullOrEmpty(_selectedScene) ? "Select Scene" : _selectedScene;
@@ -74,7 +74,7 @@ namespace PlayModePlus.Editor
             return dropdown;
         }
 
-        [MainToolbarElement(PlayModeSettingsPath, defaultDockPosition = MainToolbarDockPosition.Right, defaultDockIndex = 2)]
+        [MainToolbarElement(PlayModeSettingsPath, defaultDockPosition = MainToolbarDockPosition.Middle, defaultDockIndex = 2)]
         public static MainToolbarElement CreatePlayModeSettingsDropdown()
         {
             var content = new MainToolbarContent(_selectedPlayModeSetting, null, "Play mode settings");
@@ -83,7 +83,7 @@ namespace PlayModePlus.Editor
             return dropdown;
         }
 
-        [MainToolbarElement(BuildButtonPath, defaultDockPosition = MainToolbarDockPosition.Right, defaultDockIndex = 3)]
+        [MainToolbarElement(BuildButtonPath, defaultDockPosition = MainToolbarDockPosition.Middle, defaultDockIndex = 3)]
         public static MainToolbarElement CreateBuildButton()
         {
             var icon = EditorGUIUtility.IconContent("BuildSettings.Editor.Small").image as Texture2D;
@@ -93,7 +93,7 @@ namespace PlayModePlus.Editor
             return button;
         }
 
-        [MainToolbarElement(BuildSettingsPath, defaultDockPosition = MainToolbarDockPosition.Right, defaultDockIndex = 4)]
+        [MainToolbarElement(BuildSettingsPath, defaultDockPosition = MainToolbarDockPosition.Middle, defaultDockIndex = 4)]
         public static MainToolbarElement CreateBuildSettingsDropdown()
         {
             var displayText = string.IsNullOrEmpty(_selectedBuildPreset) ? "Build Preset" : _selectedBuildPreset;
