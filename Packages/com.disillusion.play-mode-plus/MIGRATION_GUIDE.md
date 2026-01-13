@@ -42,6 +42,18 @@ public static MainToolbarElement CreatePlayButton()
 
 ## New Features
 
+### Time Scale Slider
+- Adjust game speed from 0x to 2x during play mode
+- Right-click to reset to 1.0x
+- Uses `MainToolbarSlider` API
+
+### Scene Selector Improvements
+- "Active Scene" option to play currently open scene
+- Scenes in `Assets/Scenes/` folder prioritized at top
+- PlayerPrefs persistence across Unity sessions
+- Clean scene path display
+- Unity logo icon in dropdown
+
 ### Toolbar Customization
 Users can now:
 - Hide/show toolbar elements via right-click context menu
@@ -61,13 +73,11 @@ MainToolbar.Refresh(elementPath);
 - `CustomUnityToolbarCallback.cs` - No longer needed (reflection-based)
 - `CustomUnityToolbar.cs` - No longer needed (old initialization)
 - `PlayModeToolbar.cs` - Replaced by new implementation
+- `PlayModeManager.cs` - Replaced with direct API calls
+- `BuildManager.cs` - Functionality inlined into main toolbar class
 
 ### New Files
-- `PlayModePlusToolbarElements.cs` - New official API implementation
-
-### Unchanged
-- `PlayModeManager.cs` - Core logic remains the same
-- `BuildManager.cs` - Core logic remains the same
+- `PlayModePlusToolbarElements.cs` - New official API implementation with all features
 
 ## Compatibility
 
@@ -77,8 +87,12 @@ MainToolbar.Refresh(elementPath);
 
 ## Testing Checklist
 
+- [ ] Time scale slider appears and adjusts game speed (0x-2x)
+- [ ] Right-click time scale slider resets to 1.0x
 - [ ] Play button appears in toolbar
-- [ ] Scene dropdown shows all scenes
+- [ ] Scene dropdown shows "Active Scene" option
+- [ ] Scenes in `Assets/Scenes/` folder appear first
+- [ ] Selected scene persists after Unity restart
 - [ ] Selecting a scene updates the dropdown
 - [ ] Play button starts play mode with selected scene
 - [ ] Play mode settings dropdown works
@@ -111,9 +125,11 @@ If you forked or modified the old code:
 
 1. Remove reflection-based code
 2. Create static methods with `[MainToolbarElement]` attribute
-3. Return `MainToolbarButton` or `MainToolbarDropdown`
+3. Return `MainToolbarButton`, `MainToolbarDropdown`, or `MainToolbarSlider`
 4. Use `GenericMenu` for dropdown menus
 5. Call `MainToolbar.Refresh(path)` to update UI
+6. Use `PlayerPrefs` for persistent state across sessions
+7. Use direct Unity APIs instead of manager classes
 
 ## Resources
 

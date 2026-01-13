@@ -25,8 +25,8 @@ CustomUnityToolbarCallback (InitializeOnLoad)
 ```
 PlayModePlusToolbarElements (Static class)
   └─> [MainToolbarElement] attributes on static methods
-      └─> Each method returns MainToolbarButton or MainToolbarDropdown
-          └─> Uses PlayModeManager and BuildManager for logic
+      └─> Returns MainToolbarButton, MainToolbarDropdown, or MainToolbarSlider
+          └─> Direct API calls (no manager classes needed)
 ```
 
 ### ✅ Key Implementation Details
@@ -52,7 +52,9 @@ public static MainToolbarElement CreateElement()
 ```
 - Unity automatically discovers these methods
 - Creates toolbar elements on demand
-- `defaultDockIndex` controls initial order (0-4)
+- `defaultDockIndex` controls initial order (0-5)
+- All elements use `MainToolbarDockPosition.Middle`
+- Order: Time Scale (0), Play Button (1), Scene Selector (2), Play Mode Settings (3), Build Button (4), Build Settings (5)
 
 #### 3. Dropdown Implementation
 ```csharp
@@ -65,9 +67,20 @@ new MainToolbarDropdown(content, ShowDropdownMenu)
 
 #### 4. State Management
 - Scene selection stored in `_selectedScene` static field
-- Persisted via `PlayerPrefs` in `PlayModeManager.LastScene`
+- Persisted via `PlayerPrefs` with key `SceneDropdownPath + "_SelectedScene"`
+- Direct integration with `EditorSceneManager.playModeStartScene`
 - Play mode settings stored in `_selectedPlayModeSetting`
 - Build preset stored in `_selectedBuildPreset`
+- Time scale controlled via `Time.timeScale` during play mode
+
+#### 5. Time Scale Slider
+```csharp
+new MainToolbarSlider(content, value, min, max, onValueChanged, showInputField)
+```
+- Range: 0.0x to 2.0x (0-200 internal units)
+- Right-click context menu for reset to 1.0x
+- Only functional during play mode
+- Uses `Time.timeScale` API
 
 ### ✅ Event Handling
 
@@ -154,9 +167,10 @@ EditorApplication.projectChanged += () => MainToolbar.Refresh(SceneDropdownPath)
 #### Strengths
 - No reflection or internal API access
 - Clean separation of concerns
-- Reuses existing PlayModeManager/BuildManager logic
+- Direct Unity API usage (no manager abstraction)
 - Follows Unity's official patterns
 - Well-documented with clear naming
+- Simplified codebase (~150 fewer lines)
 
 #### Areas for Enhancement
 1. **Error Handling**: Add try-catch around critical operations
@@ -202,6 +216,20 @@ EditorApplication.projectChanged += () => MainToolbar.Refresh(SceneDropdownPath)
 4. Update event subscriptions
 5. Test thoroughly
 
+### ✅ Current Features
+
+#### Time Scale Slider
+- [x] Adjust game speed 0x-2x during play mode
+- [x] Right-click context menu to reset
+- [x] Visual feedback with input field
+
+#### Scene Selector
+- [x] "Active Scene" option for currently open scene
+- [x] Scenes in `Assets/Scenes/` folder prioritized
+- [x] PlayerPrefs persistence across sessions
+- [x] Clean path display (removes prefixes)
+- [x] Unity logo icon in dropdown
+
 ### ✅ Future Enhancements
 
 #### Short-term
@@ -209,7 +237,6 @@ EditorApplication.projectChanged += () => MainToolbar.Refresh(SceneDropdownPath)
 - [ ] Subscribe to project changes for auto-refresh
 - [ ] Read current play mode settings on init
 - [ ] Add tooltips with keyboard shortcuts
-- [ ] Add icons to dropdown items
 
 #### Long-term
 - [ ] Search/filter for large scene lists
@@ -217,7 +244,6 @@ EditorApplication.projectChanged += () => MainToolbar.Refresh(SceneDropdownPath)
 - [ ] Favorite scenes bookmarking
 - [ ] Scene groups/categories
 - [ ] Custom keyboard shortcuts
-- [ ] Analytics/usage tracking
 
 ### ✅ Documentation Status
 
@@ -236,10 +262,11 @@ EditorApplication.projectChanged += () => MainToolbar.Refresh(SceneDropdownPath)
 - **Action**: Safe to delete deprecated files after testing
 
 ### Runtime Behavior
-- **Expected**: 5 toolbar elements appear on right side
+- **Expected**: 6 toolbar elements appear in middle section
+- **Expected**: Time scale slider functional during play mode
 - **Expected**: All dropdowns functional
 - **Expected**: Play button works with scene selection
-- **Expected**: Settings persist across sessions
+- **Expected**: Scene selection persists across sessions
 
 ### Edge Cases Handled
 - ✅ No scenes in project

@@ -1,5 +1,5 @@
 # Play Mode Plus
-## Custom Unity Toolbar - Play mode scene selection, play mode settings, build and build presets.
+## Custom Unity Toolbar - Time scale control, play mode scene selection, play mode settings, and build presets.
 
 Play Mode Plus extends Unity toolbar with additional tools using the official Unity 6.3 Toolbar API.
 
@@ -10,6 +10,7 @@ For Unity 2021, 2022, or Unity 6.0-6.2, use [Play Mode Plus v2.0.0](https://gith
 
 ## Features
 
+- **Time Scale Slider** - Adjust game speed from 0x to 2x during play mode
 - **Custom Play Button** - Play the selected scene directly from the toolbar
 - **Scene Selector Dropdown** - Choose which scene to launch in play mode
 - **Play Mode Settings** - Configure domain/scene reload options
@@ -26,14 +27,20 @@ For Unity 2021, 2022, or Unity 6.0-6.2, use [Play Mode Plus v2.0.0](https://gith
 
 ## Usage
 
+### Time Scale Slider
+- Adjust game speed during play mode (0.0x to 2.0x)
+- Right-click slider to reset to 1.0x
+- Useful for testing slow-motion or fast-forward scenarios
+
 ### Play Button
 Click the custom play button to enter play mode with your selected scene. The button icon changes when in play mode.
 
 ### Scene Selection
-- Click the scene dropdown to see all scenes in your project
-- Select a scene to set it as the play mode start scene
-- Use "Add Scene..." to create a new scene
-- The last selected scene is remembered between sessions
+- Click the scene dropdown to select which scene to launch in play mode
+- Choose "Active Scene" to play the currently open scene
+- Scenes in `Assets/Scenes/` folder appear first
+- Selected scene persists between Unity sessions
+- Scene paths are displayed with clean, readable names
 
 ### Play Mode Settings
 Configure how Unity enters play mode:
@@ -56,7 +63,6 @@ Right-click the toolbar to:
 
 ## Naming Conventions
 
-> **Note**: New scenes created via "Add Scene..." are automatically named `NewScene`, `NewScene1`, etc.
 > **Note**: Only presets containing `P_` in their name appear in Build Settings dropdown
 
 ## Migration from v2.x
