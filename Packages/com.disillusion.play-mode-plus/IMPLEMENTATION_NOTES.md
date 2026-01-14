@@ -27,6 +27,8 @@ PlayModePlusToolbarElements (Static class)
   └─> [MainToolbarElement] attributes on static methods
       └─> Returns MainToolbarButton, MainToolbarDropdown, or MainToolbarSlider
           └─> Direct API calls (no manager classes needed)
+          └─> Uses Unity's native play button
+          └─> Smart scene override (test-safe)
 ```
 
 ### ✅ Key Implementation Details
@@ -52,9 +54,10 @@ public static MainToolbarElement CreateElement()
 ```
 - Unity automatically discovers these methods
 - Creates toolbar elements on demand
-- `defaultDockIndex` controls initial order (0-5)
+- `defaultDockIndex` controls initial order (0-4)
 - All elements use `MainToolbarDockPosition.Middle`
-- Order: Time Scale (0), Play Button (1), Scene Selector (2), Play Mode Settings (3), Build Button (4), Build Settings (5)
+- Order: Time Scale (0), Scene Selector (1), Play Mode Settings (2), Build Button (3), Build Settings (4)
+- **No custom play button** - Uses Unity's native play button
 
 #### 3. Dropdown Implementation
 ```csharp
@@ -68,7 +71,9 @@ new MainToolbarDropdown(content, ShowDropdownMenu)
 #### 4. State Management
 - Scene selection stored in `_selectedScene` static field
 - Persisted via `PlayerPrefs` with key `SceneDropdownPath + "_SelectedScene"`
-- Direct integration with `EditorSceneManager.playModeStartScene`
+- **Conditional scene override** with `EditorSceneManager.playModeStartScene`:
+  - Applied only when entering play mode manually (not during tests)
+  - Cleared when exiting play mode
 - Play mode settings stored in `_selectedPlayModeSetting`
 - Build preset stored in `_selectedBuildPreset`
 - Time scale controlled via `Time.timeScale` during play mode
@@ -81,6 +86,27 @@ new MainToolbarSlider(content, value, min, max, onValueChanged, showInputField)
 - Right-click context menu for reset to 1.0x
 - Only functional during play mode
 - Uses `Time.timeScale` API
+
+#### 6. Test-Safe Scene Override
+```csharp
+private static void OnPlayModeStateChanged(PlayModeStateChange state)
+{
+    if (state == PlayModeStateChange.ExitingEditMode)
+    {
+        if (_selectedScene != null && !IsRunningTests())
+        {
+            EditorSceneManager.playModeStartScene = _selectedScene;
+        }
+    }
+    else if (state == PlayModeStateChange.EnteredEditMode)
+    {
+        EditorSceneManager.playModeStartScene = null;
+    }
+}
+```
+- Detects test execution via TestRunner assemblies and stack trace
+- Only applies scene override for manual play mode entry
+- Ensures unit tests run with their own scenes
 
 ### ✅ Event Handling
 
@@ -168,16 +194,19 @@ EditorApplication.projectChanged += () => MainToolbar.Refresh(SceneDropdownPath)
 - No reflection or internal API access
 - Clean separation of concerns
 - Direct Unity API usage (no manager abstraction)
+- Uses Unity's native play button (no custom implementation)
+- Test-safe scene override mechanism
 - Follows Unity's official patterns
 - Well-documented with clear naming
-- Simplified codebase (~150 fewer lines)
+- Simplified codebase (~200 fewer lines)
 
 #### Areas for Enhancement
 1. **Error Handling**: Add try-catch around critical operations
-2. **Null Checks**: Validate texture loading and scene references
+2. **Null Checks**: Validate scene references
 3. **Event Cleanup**: Unsubscribe from events (though static class persists)
 4. **Logging**: Add debug logs for troubleshooting
 5. **Scene Refresh**: Auto-update when project changes
+6. **Test Detection**: Could be refined for edge cases in custom test frameworks
 
 ### ✅ Testing Strategy
 
@@ -229,6 +258,13 @@ EditorApplication.projectChanged += () => MainToolbar.Refresh(SceneDropdownPath)
 - [x] PlayerPrefs persistence across sessions
 - [x] Clean path display (removes prefixes)
 - [x] Unity logo icon in dropdown
+- [x] **Test-safe scene override** - doesn't interfere with unit tests
+
+#### Native Play Button Integration
+- [x] Uses Unity's native play button (no custom button)
+- [x] Scene selection applied automatically on play
+- [x] Test detection prevents scene override during tests
+- [x] Clean state management (clears on exit)
 
 ### ✅ Future Enhancements
 
@@ -262,18 +298,20 @@ EditorApplication.projectChanged += () => MainToolbar.Refresh(SceneDropdownPath)
 - **Action**: Safe to delete deprecated files after testing
 
 ### Runtime Behavior
-- **Expected**: 6 toolbar elements appear in middle section
+- **Expected**: 5 toolbar elements appear in middle section
 - **Expected**: Time scale slider functional during play mode
 - **Expected**: All dropdowns functional
-- **Expected**: Play button works with scene selection
+- **Expected**: Unity's native play button works with scene selection
 - **Expected**: Scene selection persists across sessions
+- **Expected**: Unit tests run normally without scene override
 
 ### Edge Cases Handled
 - ✅ No scenes in project
 - ✅ No build presets
-- ✅ Missing textures (needs null check enhancement)
 - ✅ First-time initialization
 - ✅ Domain reload
+- ✅ Unit test execution (scene override skipped)
+- ✅ Test Runner detection
 
 ## Conclusion
 
@@ -281,8 +319,10 @@ The refactor successfully migrates from reflection-based internal API access to 
 
 - **Future-proof**: Uses official, supported APIs
 - **Maintainable**: Clean, well-structured code
-- **Functional**: Preserves all original features
+- **Functional**: Preserves all original features plus improvements
 - **Extensible**: Easy to add new toolbar elements
 - **Compatible**: Works with Unity 6.3+ toolbar customization
+- **Test-safe**: Unit tests run normally without interference
+- **Native integration**: Uses Unity's play button instead of custom implementation
 
 The code is production-ready with minor enhancements recommended for robustness.

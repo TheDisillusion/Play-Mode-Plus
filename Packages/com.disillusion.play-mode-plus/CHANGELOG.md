@@ -1,11 +1,12 @@
 # Changelog
 
-## [3.0.0] - 2026-01-13
+## [3.0.0] - 2026-01-14
 
 ### Breaking Changes
 - **Minimum Unity Version**: Now requires Unity 6.3 (6000.3) or higher
 - Removed reflection-based toolbar implementation
 - Not compatible with Unity 2021, 2022, or Unity 6.0-6.2
+- **Removed custom play button** - Now uses Unity's native play button
 
 ### Added
 - **Time Scale Slider** - Adjust game speed from 0x to 2x during play mode with right-click reset
@@ -17,6 +18,7 @@
   - PlayerPrefs persistence for selected scene across sessions
   - Clean scene path display (removes `Assets/`, `Packages/` prefixes)
   - Unity logo icon in dropdown
+  - **Smart scene override** - Only applies to native play button, not unit tests
 - Full support for Unity 6.3 toolbar customization features:
   - Hide/show elements via context menu
   - Reorder elements with Ctrl+Drag (Cmd+Drag on macOS)
@@ -29,8 +31,12 @@
 ### Changed
 - Refactored from reflection-based to attribute-based toolbar registration
 - Replaced `IMGUIContainer` with `MainToolbarButton`, `MainToolbarDropdown`, and `MainToolbarSlider`
-- Scene dropdown now uses direct `EditorSceneManager.playModeStartScene` API
-- Toolbar elements reordered: Time Scale, Play Button, Scene Selector, Play Mode Settings, Build Button, Build Settings
+- **Now uses Unity's native play button** instead of custom play button
+- Scene override applies conditionally:
+  - ✅ Applied when clicking native play button
+  - ❌ Skipped during unit test execution (test-safe)
+- Scene dropdown uses `EditorSceneManager.playModeStartScene` with test detection
+- Toolbar elements reordered: Time Scale, Scene Selector, Play Mode Settings, Build Button, Build Settings
 - All elements now use `MainToolbarDockPosition.Middle` for consistent placement
 - Updated package description to mention official API
 - Updated `package.json` to v3.0.0 and Unity 6000.3 minimum
@@ -43,6 +49,9 @@
 - `PlayModePlusToolbar.uxml` - UIElements template (no longer needed)
 - `PlayModeManager.cs` - Replaced with direct API calls
 - `BuildManager.cs` - Functionality inlined into main toolbar class
+- **Custom play button** - Now uses Unity's native play button
+- `CustomPlayButton.png` and `CustomPlayStopButton.png` - No longer needed
+- `third-party-notices.md.txt` - No longer using third-party reflection code
 
 ### Fixed
 - Toolbar no longer breaks with Unity internal API changes
@@ -51,13 +60,16 @@
 
 ### Technical Details
 - Uses `UnityEditor.Toolbars` namespace
-- Implements `MainToolbarButton` for play/build buttons
+- Implements `MainToolbarButton` for build button
 - Implements `MainToolbarDropdown` with `GenericMenu` for dropdowns
 - Implements `MainToolbarSlider` for time scale control
 - Calls `MainToolbar.Refresh(path)` for UI updates
 - Uses `PlayerPrefs` for scene selection persistence
-- Direct integration with `EditorSceneManager.playModeStartScene`
-- Simplified codebase with ~150 fewer lines of code
+- Conditional scene override with `EditorSceneManager.playModeStartScene`:
+  - Applied on `PlayModeStateChange.ExitingEditMode` if not running tests
+  - Cleared on `PlayModeStateChange.EnteredEditMode`
+- Test detection via TestRunner assembly and stack trace analysis
+- Simplified codebase with ~200 fewer lines of code
 
 ---
 

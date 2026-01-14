@@ -47,12 +47,19 @@ public static MainToolbarElement CreatePlayButton()
 - Right-click to reset to 1.0x
 - Uses `MainToolbarSlider` API
 
+### Native Play Button Integration
+- **No custom play button** - Uses Unity's native play button
+- Scene selection automatically applied when clicking play
+- **Test-safe** - Unit tests run normally without scene override
+- Cleaner, more integrated user experience
+
 ### Scene Selector Improvements
 - "Active Scene" option to play currently open scene
 - Scenes in `Assets/Scenes/` folder prioritized at top
 - PlayerPrefs persistence across Unity sessions
 - Clean scene path display
 - Unity logo icon in dropdown
+- Smart scene override that detects test execution
 
 ### Toolbar Customization
 Users can now:
@@ -75,6 +82,9 @@ MainToolbar.Refresh(elementPath);
 - `PlayModeToolbar.cs` - Replaced by new implementation
 - `PlayModeManager.cs` - Replaced with direct API calls
 - `BuildManager.cs` - Functionality inlined into main toolbar class
+- **Custom play button** - Now uses Unity's native play button
+- `CustomPlayButton.png` and `CustomPlayStopButton.png` - Icon files removed
+- `third-party-notices.md.txt` - No longer using third-party code
 
 ### New Files
 - `PlayModePlusToolbarElements.cs` - New official API implementation with all features
@@ -89,18 +99,17 @@ MainToolbar.Refresh(elementPath);
 
 - [ ] Time scale slider appears and adjusts game speed (0x-2x)
 - [ ] Right-click time scale slider resets to 1.0x
-- [ ] Play button appears in toolbar
 - [ ] Scene dropdown shows "Active Scene" option
 - [ ] Scenes in `Assets/Scenes/` folder appear first
 - [ ] Selected scene persists after Unity restart
 - [ ] Selecting a scene updates the dropdown
-- [ ] Play button starts play mode with selected scene
+- [ ] **Unity's native play button** starts play mode with selected scene
+- [ ] **Unit tests run normally** without scene override interference
 - [ ] Play mode settings dropdown works
 - [ ] Build settings dropdown shows presets
 - [ ] Build button opens build window
 - [ ] Toolbar elements can be hidden/shown
 - [ ] Toolbar elements can be reordered
-- [ ] Play button icon changes when entering play mode
 
 ## Troubleshooting
 
@@ -124,12 +133,20 @@ MainToolbar.Refresh(elementPath);
 If you forked or modified the old code:
 
 1. Remove reflection-based code
-2. Create static methods with `[MainToolbarElement]` attribute
-3. Return `MainToolbarButton`, `MainToolbarDropdown`, or `MainToolbarSlider`
-4. Use `GenericMenu` for dropdown menus
-5. Call `MainToolbar.Refresh(path)` to update UI
-6. Use `PlayerPrefs` for persistent state across sessions
-7. Use direct Unity APIs instead of manager classes
+2. Remove custom play button implementation
+3. Create static methods with `[MainToolbarElement]` attribute
+4. Return `MainToolbarButton`, `MainToolbarDropdown`, or `MainToolbarSlider`
+5. Use `GenericMenu` for dropdown menus
+6. Call `MainToolbar.Refresh(path)` to update UI
+7. Use `PlayerPrefs` for persistent state across sessions
+8. Use direct Unity APIs instead of manager classes
+9. Implement test detection for scene override:
+   ```csharp
+   if (state == PlayModeStateChange.ExitingEditMode && !IsRunningTests())
+   {
+       EditorSceneManager.playModeStartScene = _selectedScene;
+   }
+   ```
 
 ## Resources
 

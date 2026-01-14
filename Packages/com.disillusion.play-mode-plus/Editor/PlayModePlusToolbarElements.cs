@@ -10,7 +10,6 @@ namespace PlayModePlus.Editor
 {
     public static class PlayModePlusToolbarElements
     {
-        private const string PlayButtonPath = "Play Mode Plus/Play Button";
         private const string SceneDropdownPath = "Play Mode Plus/Scene Selector";
         private const string TimeScalePath = "Play Mode Plus/Time Scale";
         private const string PlayModeSettingsPath = "Play Mode Plus/Play Mode Settings";
@@ -26,6 +25,7 @@ namespace PlayModePlus.Editor
         private static string _selectedPlayModeSetting = "Default (Reload Domain, Reload Scene)";
         private static string _selectedBuildPreset;
         private static SceneAsset _selectedScene;
+        private static bool _isEnteringPlayModeManually;
 
         static PlayModePlusToolbarElements()
         {
@@ -40,7 +40,6 @@ namespace PlayModePlus.Editor
             {
                 _selectedScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(lastScenePath);
             }
-            EditorSceneManager.playModeStartScene = _selectedScene;
         }
         
         private static SceneAsset SelectedScene
@@ -49,7 +48,6 @@ namespace PlayModePlus.Editor
             set
             {
                 _selectedScene = value;
-                EditorSceneManager.playModeStartScene = value;
                 var scenePath = value == null ? null : AssetDatabase.GetAssetPath(value);
                 PlayerPrefs.SetString(SelectedScenePrefsKey, scenePath);
             }
@@ -83,22 +81,8 @@ namespace PlayModePlus.Editor
             
             return slider;
         }
-        
-        [MainToolbarElement(PlayButtonPath, defaultDockPosition = MainToolbarDockPosition.Middle, defaultDockIndex = 1)]
-        public static MainToolbarElement CreatePlayButton()
-        {
-            var playButtonTexture = Resources.Load<Texture2D>("com.disillusion.play-mode-plus/Icons/CustomPlayButton");
-            var playStopButtonTexture = Resources.Load<Texture2D>("com.disillusion.play-mode-plus/Icons/CustomPlayStopButton");
-            var texture = EditorApplication.isPlaying ? playStopButtonTexture : playButtonTexture;
-            var content = new MainToolbarContent(texture, "Play selected scene");
-            var button = new MainToolbarButton(content, OnPlayButtonClicked)
-            {
-                displayed = true
-            };
-            return button;
-        }
 
-        [MainToolbarElement(SceneDropdownPath, defaultDockPosition = MainToolbarDockPosition.Middle, defaultDockIndex = 2)]
+        [MainToolbarElement(SceneDropdownPath, defaultDockPosition = MainToolbarDockPosition.Middle, defaultDockIndex = 1)]
         public static MainToolbarElement CreateSceneDropdown()
         {
             var icon = EditorGUIUtility.IconContent("UnityLogo").image as Texture2D;
@@ -111,7 +95,7 @@ namespace PlayModePlus.Editor
             return dropdown;
         }
 
-        [MainToolbarElement(PlayModeSettingsPath, defaultDockPosition = MainToolbarDockPosition.Middle, defaultDockIndex = 3)]
+        [MainToolbarElement(PlayModeSettingsPath, defaultDockPosition = MainToolbarDockPosition.Middle, defaultDockIndex = 2)]
         public static MainToolbarElement CreatePlayModeSettingsDropdown()
         {
             var content = new MainToolbarContent(_selectedPlayModeSetting, null, "Play mode settings");
@@ -122,7 +106,7 @@ namespace PlayModePlus.Editor
             return dropdown;
         }
 
-        [MainToolbarElement(BuildButtonPath, defaultDockPosition = MainToolbarDockPosition.Middle, defaultDockIndex = 4)]
+        [MainToolbarElement(BuildButtonPath, defaultDockPosition = MainToolbarDockPosition.Middle, defaultDockIndex = 3)]
         public static MainToolbarElement CreateBuildButton()
         {
             var icon = EditorGUIUtility.IconContent("BuildSettings.Editor.Small").image as Texture2D;
@@ -134,7 +118,7 @@ namespace PlayModePlus.Editor
             return button;
         }
 
-        [MainToolbarElement(BuildSettingsPath, defaultDockPosition = MainToolbarDockPosition.Middle, defaultDockIndex = 5)]
+        [MainToolbarElement(BuildSettingsPath, defaultDockPosition = MainToolbarDockPosition.Middle, defaultDockIndex = 4)]
         public static MainToolbarElement CreateBuildSettingsDropdown()
         {
             var displayText = string.IsNullOrEmpty(_selectedBuildPreset) ? "Build Preset" : _selectedBuildPreset;
@@ -146,18 +130,6 @@ namespace PlayModePlus.Editor
             return dropdown;
         }
 
-        private static void OnPlayButtonClicked()
-        {
-            if (!EditorApplication.isPlaying)
-            {
-                EditorApplication.isPlaying = true;
-            }
-            else
-            {
-                EditorApplication.isPlaying = false;
-            }
-        }
-        
         private static void OnTimeScaleChanged(float newValue)
         {
             Time.timeScale = newValue * TimeScaleUnit;
@@ -332,7 +304,34 @@ namespace PlayModePlus.Editor
 
         private static void OnPlayModeStateChanged(PlayModeStateChange state)
         {
-            MainToolbar.Refresh(PlayButtonPath);
+            if (state == PlayModeStateChange.ExitingEditMode)
+            {
+                // Only apply selected scene if entering play mode manually (not via tests)
+                // Tests typically use EditorApplication.EnterPlaymode() or similar APIs
+                // Manual play button clicks go through the normal state change flow
+                if (_selectedScene != null && !IsRunningTests())
+                {
+                    EditorSceneManager.playModeStartScene = _selectedScene;
+                }
+            }
+            else if (state == PlayModeStateChange.EnteredEditMode)
+            {
+                // Clear playModeStartScene after exiting play mode to avoid affecting tests
+                EditorSceneManager.playModeStartScene = null;
+            }
+        }
+        
+        private static bool IsRunningTests()
+        {
+            // Check if we're in a test context
+            // Unity Test Framework sets this when running tests
+            var testAssemblies = System.AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => a.FullName.Contains("UnityEngine.TestRunner") || 
+                           a.FullName.Contains("UnityEditor.TestRunner"))
+                .ToArray();
+            
+            return testAssemblies.Length > 0 && 
+                   System.Environment.StackTrace.Contains("TestRunner");
         }
     }
 }
