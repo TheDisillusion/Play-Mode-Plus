@@ -1,12 +1,17 @@
 # Play Mode Plus
 ## Custom Unity Toolbar - Time scale control, play mode scene selection, play mode settings, and build presets.
 
+<img width="897" height="33" alt="image" src="https://github.com/user-attachments/assets/559fd9a2-26cb-42a1-b18a-6079d9eff5c7" />
+
+
 Play Mode Plus extends Unity toolbar with additional tools using the official Unity 6.3 Toolbar API.
 
 ## ⚠️ Unity 6.3+ Required
 **Version 3.0.0+ requires Unity 6.3 or higher.** This version uses Unity's official toolbar API instead of reflection.
 
-For Unity 2021, 2022, or Unity 6.0-6.2, use [Play Mode Plus v2.0.0](https://github.com/TheDisillusion/Play-Mode-Plus/releases/tag/v2.0.0).
+For Unity 2021, 2022, use [Play Mode Plus v1.0.0](https://github.com/TheDisillusion/Play-Mode-Plus/releases/tag/1.0.0).
+
+For Unity 6.0-6.2, use [Play Mode Plus v2.0.0](https://github.com/TheDisillusion/Play-Mode-Plus/releases/tag/2.0.0).
 
 ## Features
 
